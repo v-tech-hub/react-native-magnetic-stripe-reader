@@ -19,6 +19,7 @@ import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.WritableNativeMap;
 
 import lm.magneticstripe.utils.MagneticStripeConverter;
 import lm.magneticstripe.utils.MagneticStripeTypeConversion;
@@ -40,11 +41,18 @@ public class MagneticStripeReaderModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void readBankCardData(String rawData, int tc, Callback callback) {
-        BankCardMagneticTrack cardMagneticTrack = BankCardMagneticTrack.from(rawData);
-        if(MagneticStripeTypeConversion.valueOfNumber(tc) == MagneticStripeTypeConversion.TRACK){
-            callback.invoke(MagneticStripeConverter.convertBankCardMagneticTrackToMap(cardMagneticTrack));
-        }else {
-            callback.invoke(MagneticStripeConverter.convertBankCardToMap(cardMagneticTrack.toBankCard()));
+        try {
+            BankCardMagneticTrack cardMagneticTrack = BankCardMagneticTrack.from(rawData);
+            if (MagneticStripeTypeConversion.valueOfNumber(tc) == MagneticStripeTypeConversion.TRACK) {
+                callback.invoke(MagneticStripeConverter.convertBankCardMagneticTrackToMap(cardMagneticTrack));
+            } else {
+                callback.invoke(MagneticStripeConverter.convertBankCardToMap(cardMagneticTrack.toBankCard()));
+            }
+        } catch (Exception exception) {
+            WritableNativeMap result = new WritableNativeMap();
+            result.putBoolean("success", false);
+            result.putString("message", exception.getMessage() == null ? "Unable to parse card data" : exception.getMessage());
+            callback.invoke(result);
         }
     }
 }

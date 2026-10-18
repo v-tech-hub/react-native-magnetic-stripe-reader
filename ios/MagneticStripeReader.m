@@ -1,13 +1,13 @@
 #import "MagneticStripeReader.h"
+#import "MagneticStripeParser.h"
 
 @implementation MagneticStripeReader
 
 RCT_EXPORT_MODULE()
 
-RCT_EXPORT_METHOD(sampleMethod:(NSString *)stringArgument numberParameter:(nonnull NSNumber *)numberArgument callback:(RCTResponseSenderBlock)callback)
+RCT_EXPORT_METHOD(readBankCardData:(NSString *)rawData type:(nonnull NSNumber *)type callback:(RCTResponseSenderBlock)callback)
 {
-    // TODO: Implement some actually useful functionality
-    callback(@[[NSString stringWithFormat: @"numberArgument: %@ stringArgument: %@", numberArgument, stringArgument]]);
+    callback(@[[MagneticStripeParser parseRawData:rawData type:type.integerValue]]);
 }
 
 @end

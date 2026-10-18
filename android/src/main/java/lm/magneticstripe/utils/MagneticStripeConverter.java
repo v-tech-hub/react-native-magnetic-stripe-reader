@@ -49,25 +49,28 @@ public class MagneticStripeConverter {
                 map.putMap("TRACK1",track1);
             }
             if(cardMagneticTrack.getTrack2().hasRawData()){
+                map.putBoolean("success",true);
+                map.putString("message","ok");
                 WritableNativeMap track2 = new WritableNativeMap();
                 track2.putString("rawData",cardMagneticTrack.getTrack2().getRawData());
-                track2.putString("primaryAccountNumber:",cardMagneticTrack.getTrack1().getAccountNumber().getAccountNumber());
-                track2.putString("expirationDate",cardMagneticTrack.getTrack1().getExpirationDate().getExpirationDate().toString());
-                track2.putString("discretionaryData",cardMagneticTrack.getTrack1().getDiscretionaryData());
+                track2.putString("primaryAccountNumber:",cardMagneticTrack.getTrack2().getAccountNumber().getAccountNumber());
+                track2.putString("expirationDate",cardMagneticTrack.getTrack2().getExpirationDate().getExpirationDate().toString());
+                track2.putString("discretionaryData",cardMagneticTrack.getTrack2().getDiscretionaryData());
                 map.putMap("TRACK2",track2);
             }
             if(cardMagneticTrack.getTrack3().hasRawData()){
+                map.putBoolean("success",true);
+                map.putString("message","ok");
                 WritableNativeMap track3 = new WritableNativeMap();
-                track3.putString("rawData",cardMagneticTrack.getTrack1().getRawData());
-                track3.putString("primaryAccountNumber:",cardMagneticTrack.getTrack1().getAccountNumber().getAccountNumber());
-                track3.putString("expirationDate",cardMagneticTrack.getTrack1().getExpirationDate().getExpirationDate().toString());
-                track3.putString("discretionaryData",cardMagneticTrack.getTrack1().getDiscretionaryData());
+                track3.putString("rawData",cardMagneticTrack.getTrack3().getRawData());
+                track3.putString("discretionaryData",cardMagneticTrack.getTrack3().getDiscretionaryData());
                 map.putMap("TRACK3",track3);
             }
             return map;
         }catch(Exception e){
             String error = e.getMessage();
             WritableNativeMap map = new WritableNativeMap();
+            map.putBoolean("success",false);
             map.putString("message",error);
             return map;
         }
@@ -123,6 +126,7 @@ public class MagneticStripeConverter {
         }catch(Exception e){
             String error = e.getMessage();
             WritableNativeMap map = new WritableNativeMap();
+            map.putBoolean("success",false);
             map.putString("message",error);
             return map;
         }

@@ -1,83 +1,129 @@
-# react-native-magnetic-stripe-reader
-![npm](https://img.shields.io/npm/dw/react-native-magnetic-stripe-reader?style=for-the-badge)
-## Getting started
+# React Native Magnetic Stripe Reader
 
-`$ npm install react-native-magnetic-stripe-reader --save`
+Parse ISO/IEC 7813 bank-card Track 1 and Track 2 strings on Android and iOS.
+Both platforms expose the same React Native callback API.
 
-### Mostly automatic installation
+## Installation
 
-`$ react-native link react-native-magnetic-stripe-reader`
-## Note
-This library works only in Android environment. The iOS version is on the development phase.
+```sh
+npm install react-native-magnetic-stripe-reader
+```
+
+React Native 0.60 and newer autolinks the native module. For iOS, install the
+CocoaPods dependency after adding the package:
+
+```sh
+cd ios
+pod install
+```
+
 ## Usage
+
 ```javascript
 import MagneticStripeReader from 'react-native-magnetic-stripe-reader';
 
-...
-useEffect(()=>{
-    //1: BankCardTrackData, 2: BankCardInformation
-    const type = 1;
-    MagneticStripeReader.readBankCardData('%B5350290149123123123213345177^FATEHI/SUALEH^16042010000000000000000000000000000567001000?', type, (data) => {
-      console.log(data);
-    });
+const rawData =
+  '%B5350290149345177^FATEHI/SUALEH^16042010000000000000000000000000000567001000?' +
+  ';5350290149345177=16042010000056700100?';
+
+// 1 returns the parsed tracks. 2 returns normalized card information.
+MagneticStripeReader.readBankCardData(rawData, 1, result => {
+  if (result.success) {
+    console.log(result);
+  } else {
+    console.warn(result.message);
+  }
 });
-...
 ```
-## Output
-BankCardTrackData
+
+### Conversion types
+
+| Type | Result |
+| --- | --- |
+| `1` | Track-level data in `TRACK1`, `TRACK2`, and, on Android, `TRACK3` |
+| `2` | Normalized card information, including PAN validation, brand, expiration, cardholder name, and service code |
+
+Values other than `2` retain the existing Android behavior and are treated as
+type `1`.
+
+## Track result
+
 ```javascript
 {
-  "TRACK1": {
-    "discretionaryData": "0000000000000000000000000000567001000",
-    "name": "Sualeh Fatehi",
-    "expirationDate": "2016-04",
-    "primaryAccountNumber:": "5350290149345177",
-    "rawData": "%B5350290149345177^FATEHI/SUALEH^16042010000000000000000000000000000567001000?"
+  success: true,
+  message: 'ok',
+  TRACK1: {
+    rawData: '%B5350290149345177^FATEHI/SUALEH^16042010000000000000000000000000000567001000?',
+    'primaryAccountNumber:': '5350290149345177',
+    expirationDate: '2016-04',
+    name: 'Sualeh Fatehi',
+    discretionaryData: '0000000000000000000000000000000000567001000'
   },
-  "TRACK2": {
-    "discretionaryData": "0000000000000000000000000000567001000",
-    "expirationDate": "2016-04",
-    "primaryAccountNumber:": "5350290149345177",
-    "rawData": ";5350290149345177=16042010000056700100?"
-  },
-  "message": "ok",
-  "success": true
+  TRACK2: {
+    rawData: ';5350290149345177=16042010000056700100?',
+    'primaryAccountNumber:': '5350290149345177',
+    expirationDate: '2016-04',
+    discretionaryData: '0000056700100'
+  }
 }
 ```
-BankCardInformation
+
+The colon in `primaryAccountNumber:` is retained for backward compatibility.
+
+## Card-information result
+
 ```javascript
 {
-  "serviceCode2": {
-    "description": "Authorization Processing: Normal.",
-    "code": 0
+  success: true,
+  message: 'ok',
+  rawAccountNumber: '5350290149345177',
+  primaryAccountNumber: '5350290149345177',
+  majorIndustryIdentifier: 'mii_5',
+  issuerIdentificationNumber: '535029',
+  cardBrand: 'MasterCard',
+  lastFourDigits: '5177',
+  passesLuhnCheck: true,
+  isPrimaryAccountNumberValid: true,
+  expirationDate: '2016-04',
+  isExpired: true,
+  name: 'Sualeh Fatehi',
+  serviceCode1: {
+    code: 2,
+    description: 'Interchange: International interchange. Technology: Integrated circuit card.'
   },
-  "serviceCode3": {
-    "description": "Allowed Services: No restrictions. PIN Requirements: None.",
-    "code": 1
+  serviceCode2: {
+    code: 0,
+    description: 'Authorization Processing: Normal.'
   },
-  "serviceCode1": {
-    "description": "Interchange: International interchange. Technology: Integrated circuit card.",
-    "code": 2
-  },
-  "isExpired": true,
-  "expirationDate": "2016-04",
-  "passesLuhnCheck": true,
-  "isPrimaryAccountNumberValid": true,
-  "success": true,
-  "cardBrand": "MasterCard",
-  "name": "Sualeh Fatehi",
-  "issuerIdentificationNumber": "535029",
-  "message": "ok",
-  "primaryAccountNumber": "5350290149345177",
-  "lastFourDigits": "5177",
-  "majorIndustryIdentifier": "mii_5",
-  "rawAccountNumber": "5350290149345177"
+  serviceCode3: {
+    code: 1,
+    description: 'Allowed Services: No restrictions. PIN Requirements: None.'
+  }
 }
 ```
-No data found
+
+Invalid or unsupported input returns:
+
 ```javascript
 {
-  "message":"No data found",
-  "success":false
+  success: false,
+  message: 'No data found'
 }
 ```
+
+## Platform support
+
+- Android: Track 1, Track 2, Track 3 passthrough, and normalized card data.
+- iOS: Track 1, Track 2, and normalized card data.
+- Minimum Android SDK: 16, unless overridden by the host application.
+- Minimum iOS version: 9.0, subject to the React Native version used by the host application.
+
+## Security
+
+Magnetic-stripe data contains sensitive payment-card information. Avoid logging,
+persisting, or transmitting raw track data unless your application and handling
+process meet the applicable security and PCI DSS requirements.
+
+## License
+
+Apache License 2.0.
