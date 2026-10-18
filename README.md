@@ -1,5 +1,8 @@
 # React Native Magnetic Stripe Reader
 
+[![npm version](https://img.shields.io/npm/v/react-native-magnetic-stripe-reader.svg?style=for-the-badge)](https://www.npmjs.com/package/react-native-magnetic-stripe-reader)
+[![npm downloads](https://img.shields.io/npm/dm/react-native-magnetic-stripe-reader.svg?style=for-the-badge)](https://www.npmjs.com/package/react-native-magnetic-stripe-reader)
+
 Parse ISO/IEC 7813 bank-card Track 1 and Track 2 strings on Android and iOS.
 Both platforms expose the same React Native callback API.
 
